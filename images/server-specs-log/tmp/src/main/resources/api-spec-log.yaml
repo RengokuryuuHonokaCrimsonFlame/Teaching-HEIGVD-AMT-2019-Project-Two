@@ -1,0 +1,83 @@
+swagger: '2.0'
+info:
+  version: '0.1.0'
+  title: Open Affect API
+  description: API to record emotions
+  termsOfService: none
+  contact:
+    name: Open Affect API team
+    email: info@openaffect.io
+    url: http://openaffect.io
+  license:
+    name: MIT
+    url: http://opensource.org/licenses/MIT
+host: 192.168.99.100:8080
+basePath: /api
+schemes:
+- "https"
+- "http"
+paths:
+  /login:
+    post:
+      description: allow a user to connect
+      operationId: login
+      consumes:
+        - application/json
+      parameters:
+        - name: user
+          in: body
+          description: the user (name and password)
+          required: true
+          schema:
+            $ref: '#/definitions/user'
+      responses:
+        '201':
+          description: no body
+          schema:
+            type: object
+        '401':
+          description: "Wrong password or username"
+        '404':
+          description: "User not found"
+  /signin:
+    post:
+      description: allow a user to create an account
+      operationId: signin
+      consumes:
+        - application/json
+      parameters:
+        - name: user
+          in: body
+          description: the user (name and password)
+          required: true
+          schema:
+            $ref: '#/definitions/user'
+      responses:
+        '201':
+          description: no body
+          schema:
+            type: object
+        '409':
+          description: "Username already exists"
+  /logout:
+    post:
+      description: allow a user to logout
+      operationId: logout
+      consumes:
+        - application/json
+      responses:
+        '201':
+          description: no body
+          schema:
+            type: object
+definitions:
+  user:
+    type: object
+    required:
+      - username
+      - password
+    properties:
+      username:
+        type: string
+      password:
+        type: string
