@@ -3,19 +3,10 @@ info:
   version: '0.1.0'
   title: User API
   description: API to Login, Logout and register
-  termsOfService: none
-  contact:
-    name: Open Affect API team
-    email: info@openaffect.io
-    url: http://openaffect.io
-  license:
-    name: MIT
-    url: http://opensource.org/licenses/MIT
-host: 192.168.99.100
+host: localhost
 basePath: /api
 schemes:
-- "https"
-- "http"
+- http
 paths:
   /login:
     post:
@@ -64,13 +55,51 @@ paths:
         '409':
           description: "Username already exists"
   /logout:
-    post:
+    get:
       description: allow a user to logout
       operationId: logout
       parameters:
         - $ref: '#/parameters/TokenHeader'
       responses:
         '201':
+          description: no body
+          schema:
+            type: object 
+  /adminplayer:
+    get:
+      description: allow an administrator to see all player
+      operationId: adminplayer
+      parameters:
+        - $ref: '#/parameters/TokenHeader'
+      responses:        
+        '200':
+          description: "all the players"
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/player'
+        '403':
+          description: no body
+          schema:
+            type: object
+    post:
+      description: allow an administrator to lock/unlock a player
+      operationId: manageplayer
+      parameters:
+        - $ref: '#/parameters/TokenHeader'
+        - name: "id"
+          in: "path"
+          description: "ID of the player to lock/unlock"
+          required: true
+          type: string
+      responses:
+        '200':
+          description: "all the players"
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/player'
+        '403':
           description: no body
           schema:
             type: object
@@ -95,7 +124,8 @@ definitions:
   player:
     type: object
     required:
-      - id
+      - email
+      - pseudo
       - password
       - strength
       - dexterity
@@ -105,8 +135,12 @@ definitions:
       - charisma
       - race    
       - classe
+      - administrator
+      - blocked
     properties:
-      id:
+      email:
+        type: string
+      pseudo:
         type: string
       password:
         type: string
@@ -126,6 +160,10 @@ definitions:
         type: string
       classe:
         type: string
+      administrator:
+        type: boolean
+      blocked:
+        type: boolean
 parameters:
   TokenHeader:
     description: header that contain a JwtToken

@@ -105,6 +105,31 @@ paths:
           description: "No right access"
         '404':
           description: "Player not found"
+  /player/changepassword:
+    post:
+      description: allow the player to change his password
+      operationId: changepassword
+      consumes:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/TokenHeader'
+        - name: player
+          in: body
+          description: the player
+          required: true
+          schema:
+            $ref: '#/definitions/player'
+      responses:
+        '200':
+          description: Player
+          schema:
+            type: object
+            items:
+              $ref: '#/definitions/player'
+        '403':
+          description: "No right access"
+        '404':
+          description: "Player not found"
   /party:
     get:
       description: allow a user to see all parties
@@ -132,7 +157,7 @@ paths:
         - $ref: '#/parameters/TokenHeader'
         - name: "id"
           in: "path"
-          description: "ID of the player to return"
+          description: "ID of the party to return"
           required: true
           type: string
       responses:
@@ -149,7 +174,8 @@ definitions:
   player:
     type: object
     required:
-      - id
+      - email
+      - pseudo
       - password
       - strength
       - dexterity
@@ -159,8 +185,12 @@ definitions:
       - charisma
       - race    
       - classe
+      - administrator
+      - blocked
     properties:
-      id:
+      email:
+        type: string
+      pseudo:
         type: string
       password:
         type: string
@@ -180,6 +210,10 @@ definitions:
         type: string
       classe:
         type: string
+      administrator:
+        type: boolean
+      blocked:
+        type: boolean
   party:
     type: object
     required:

@@ -1,0 +1,15 @@
+{
+  "administrator": true,
+  "blocked": false,
+  "charisma": 252,
+  "classe": "noble",
+  "constitution": 666,
+  "dexterity": 252,
+  "email": "julien.rod@heig-vd.ch",
+  "intelligence": 32767,
+  "password": "admin1234",
+  "pseudo": "Julien",
+  "race": "humain",
+  "strength": 252,
+  "wisdom": 666
+}

@@ -14,7 +14,8 @@ USE dnd;
 
 
 CREATE TABLE player (        
-	id VARCHAR(100) NOT NULL, 
+	email VARCHAR(100) NOT NULL, 
+	pseudo VARCHAR(100) NOT NULL, 
 	password VARCHAR(100) NOT NULL, 	
 	strength SMALLINT UNSIGNED NOT NULL,
 	dexterity SMALLINT UNSIGNED NOT NULL,
@@ -24,7 +25,9 @@ CREATE TABLE player (
 	charisma SMALLINT UNSIGNED NOT NULL,
 	race VARCHAR(30) NOT NULL,     
 	classe VARCHAR(30) NOT NULL,
-	CONSTRAINT ID_player PRIMARY KEY (id)
+	administrator BOOLEAN NOT NULL,
+	blocked BOOLEAN NOT NULL,
+	CONSTRAINT ID_player PRIMARY KEY (email)
 );
 
 CREATE TABLE party(
@@ -47,10 +50,11 @@ CREATE TABLE jwttoken(
 
 -- Constraints Section
 -- ___________________ 
+
 ALTER TABLE playerParty
 	ADD CONSTRAINT FKplayerPartyPlayer
 	FOREIGN KEY (fkPlayer)     
-	REFERENCES player (id) 
+	REFERENCES player (email) 
 	ON UPDATE CASCADE;
 	
 ALTER TABLE playerParty
