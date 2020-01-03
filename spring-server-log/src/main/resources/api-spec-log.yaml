@@ -11,7 +11,7 @@ info:
   license:
     name: MIT
     url: http://opensource.org/licenses/MIT
-host: 192.168.99.100:8080
+host: 192.168.99.100
 basePath: /api
 schemes:
 - "https"
@@ -23,6 +23,8 @@ paths:
       operationId: login
       consumes:
         - application/json
+      produces:
+        - application/json
       parameters:
         - name: credentials
           in: body
@@ -32,18 +34,20 @@ paths:
             $ref: '#/definitions/credentials'
       responses:
         '201':
-          description: no body
+          description: a jwttoken
           schema:
             $ref: '#/definitions/jwttoken'
         '401':
           description: "Wrong password or username"
         '404':
           description: "User not found"
-  /signin:
+  /register:
     post:
       description: allow a user to create an account
-      operationId: signin
+      operationId: register
       consumes:
+        - application/json
+      produces:
         - application/json
       parameters:
         - name: player
@@ -54,7 +58,7 @@ paths:
             $ref: '#/definitions/player'
       responses:
         '201':
-          description: no body
+          description: a jwttoken
           schema:
             $ref: '#/definitions/jwttoken'
         '409':

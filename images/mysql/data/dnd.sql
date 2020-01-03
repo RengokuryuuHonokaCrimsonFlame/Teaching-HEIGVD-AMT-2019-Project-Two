@@ -11,15 +11,6 @@ USE dnd;
 -- DBSpace Section
 -- _______________
 -- Tables Section
-CREATE TABLE classe (     
-	id VARCHAR(30),        
-	CONSTRAINT ID_Classe PRIMARY KEY (id)
-);
-
-CREATE TABLE race (     
-	id VARCHAR(30),        
-	CONSTRAINT ID_race PRIMARY KEY (id)
-);
 
 
 CREATE TABLE player (        
@@ -31,8 +22,8 @@ CREATE TABLE player (
 	intelligence SMALLINT UNSIGNED NOT NULL,
 	wisdom SMALLINT UNSIGNED NOT NULL,
 	charisma SMALLINT UNSIGNED NOT NULL,
-	fkRace VARCHAR(30) NOT NULL,     
-	fkClasse VARCHAR(30) NOT NULL,
+	race VARCHAR(30) NOT NULL,     
+	classe VARCHAR(30) NOT NULL,
 	CONSTRAINT ID_player PRIMARY KEY (id)
 );
 
@@ -48,20 +39,14 @@ CREATE TABLE playerParty(
 	CONSTRAINT ID_partyPlayer PRIMARY KEY (fkPlayer, fkParty)
 );
 
+CREATE TABLE jwttoken(
+	id VARCHAR(200) NOT NULL,
+	temps DATETIME NOT NULL,
+	CONSTRAINT ID_token PRIMARY KEY (id)
+);
+
 -- Constraints Section
 -- ___________________ 
-ALTER TABLE player 
-	ADD CONSTRAINT FKplayerClasse
-	FOREIGN KEY (fkClasse)     
-	REFERENCES classe (id) 
-	ON UPDATE CASCADE;
-	
-ALTER TABLE player 
-	ADD CONSTRAINT FKplayerRace
-	FOREIGN KEY (fkRace)     
-	REFERENCES race (id) 
-	ON UPDATE CASCADE;
-	
 ALTER TABLE playerParty
 	ADD CONSTRAINT FKplayerPartyPlayer
 	FOREIGN KEY (fkPlayer)     
@@ -73,26 +58,3 @@ ALTER TABLE playerParty
 	FOREIGN KEY (fkParty)     
 	REFERENCES party (id) 
 	ON UPDATE CASCADE;	
-	
-INSERT INTO classe (id) VALUE ('Barbarian');
-INSERT INTO classe (id) VALUE ('Bard');
-INSERT INTO classe (id) VALUE ('Cleric');
-INSERT INTO classe (id) VALUE ('Druid');
-INSERT INTO classe (id) VALUE ('Fighter');
-INSERT INTO classe (id) VALUE ('Monk');
-INSERT INTO classe (id) VALUE ('Paladin');
-INSERT INTO classe (id) VALUE ('Ranger');
-INSERT INTO classe (id) VALUE ('Rogue');
-INSERT INTO classe (id) VALUE ('Sorcerer');
-INSERT INTO classe (id) VALUE ('Warlock');
-INSERT INTO classe (id) VALUE ('Wizard');
-	
-INSERT INTO race (id) VALUE ('Dragonborn');
-INSERT INTO race (id) VALUE ('Dwarf');
-INSERT INTO race (id) VALUE ('Elf');
-INSERT INTO race (id) VALUE ('Gnome');
-INSERT INTO race (id) VALUE ('Halfling');
-INSERT INTO race (id) VALUE ('Half-Elf');
-INSERT INTO race (id) VALUE ('Half-Orc');
-INSERT INTO race (id) VALUE ('Human');
-INSERT INTO race (id) VALUE ('Tiefling');

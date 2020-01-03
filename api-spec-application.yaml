@@ -1,0 +1,199 @@
+swagger: '2.0'
+info:
+  version: '0.1.0'
+  title: Open Affect API
+  description: API to record emotions
+  termsOfService: none
+  contact:
+    name: Open Affect API team
+    email: info@openaffect.io
+    url: http://openaffect.io
+  license:
+    name: MIT
+    url: http://opensource.org/licenses/MIT
+host: 192.168.99.100
+basePath: /api
+schemes:
+- "http"
+paths:
+  /player:
+    get:
+      description: allow a user to see his/her players
+      operationId: playerMainPage
+      parameters:
+        - $ref: '#/parameters/TokenHeader'
+      responses:
+        '200':
+          description: list the player info
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/player'
+        '403':
+          description: "You have not authorization to access this user data"
+        '404':
+          description: "User not found"
+ 
+  /player/createParty:
+    post:
+      description: allow a user to create a party
+      operationId: createParty
+      consumes:
+        - application/json
+      parameters:
+        - name: party
+          in: body
+          description: the new party
+          required: true
+          schema:
+            $ref: '#/definitions/party'
+        - $ref: '#/parameters/TokenHeader'
+      responses:
+        '201':
+          description: no body
+          schema:
+            type: object
+        '403':
+          description: "You have not authorization to access this user data"
+  /player/joinParty:
+    post:
+      description: allow the player's owner to add his player to a party
+      operationId: joinParty
+      consumes:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/TokenHeader'
+        - name: party
+          in: body
+          description: the party
+          required: true
+          schema:
+            $ref: '#/definitions/party'
+      responses:
+        '200':
+          description: Player
+          schema:
+            type: object
+            items:
+              $ref: '#/definitions/player'
+        '403':
+          description: "No right access"
+        '404':
+          description: "Player not found"
+  /player/quitParty:
+    post:
+      description: allow the player's owner to make his player quit a party
+      operationId: quitParty
+      consumes:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/TokenHeader'
+        - name: party
+          in: body
+          description: the party
+          required: true
+          schema:
+            $ref: '#/definitions/party'
+      responses:
+        '200':
+          description: Player
+          schema:
+            type: object
+            items:
+              $ref: '#/definitions/player'
+        '403':
+          description: "No right access"
+        '404':
+          description: "Player not found"
+  /party:
+    get:
+      description: allow a user to see all parties
+      operationId: getAllParties
+      produces:
+        - application/json
+      parameters:
+       - $ref: '#/parameters/TokenHeader'
+      responses:
+        '200':
+          description: Party
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/party'
+  /party/{id}:
+    get:
+      description: allow a user to see one party
+      operationId: getParty
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/TokenHeader'
+        - name: "id"
+          in: "path"
+          description: "ID of the player to return"
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Party
+          schema:
+            type: object
+            items:
+              $ref: '#/definitions/party'
+        '404':
+          description: "Party not found"
+      
+definitions:
+  player:
+    type: object
+    required:
+      - id
+      - password
+      - strength
+      - dexterity
+      - constitution
+      - intelligence
+      - wisdom
+      - charisma
+      - race    
+      - classe
+    properties:
+      id:
+        type: string
+      password:
+        type: string
+      strength:
+        type: integer
+      dexterity:
+        type: integer
+      constitution:
+        type: integer
+      intelligence:
+        type: integer
+      wisdom:
+        type: integer
+      charisma:
+        type: integer
+      race:
+        type: string
+      classe:
+        type: string
+  party:
+    type: object
+    required:
+      - id
+      - reputation
+    properties:
+      id:
+        type: string
+      reputation:
+        type: integer
+parameters:
+  TokenHeader:
+    description: header that contain a JwtToken
+    name: x-dnd-token
+    in: header
+    required: true
+    type: string

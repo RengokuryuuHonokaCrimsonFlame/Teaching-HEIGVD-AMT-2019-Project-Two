@@ -74,10 +74,10 @@ definitions:
   credentials:
     type: object
     required:
-      - id
+      - username
       - password
     properties:
-      id:
+      username:
         type: string
       password:
         type: string
@@ -91,7 +91,7 @@ definitions:
   player:
     type: object
     required:
-      - id
+      - username
       - password
       - strength
       - dexterity
@@ -99,10 +99,10 @@ definitions:
       - intelligence
       - wisdom
       - charisma
-      - race    
-      - classe
+      - fkRace    
+      - fkClasse
     properties:
-      id:
+      usename:
         type: string
       password:
         type: string
@@ -118,9 +118,9 @@ definitions:
         type: integer
       charisma:
         type: integer
-      race:
+      fkRace:
         type: string
-      classe:
+      fkClasse:
         type: string
 parameters:
   TokenHeader:
