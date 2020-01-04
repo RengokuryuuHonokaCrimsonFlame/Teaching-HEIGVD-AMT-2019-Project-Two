@@ -24,14 +24,14 @@ paths:
           schema:
             $ref: '#/definitions/credentials'
       responses:
-        '201':
+        '200':
           description: a jwttoken
           schema:
             $ref: '#/definitions/jwttoken'
-        '401':
-          description: "Wrong password or username"
         '404':
-          description: "User not found"
+          description: "Wrong password or username"
+        '423':
+          description: "User locked"
   /register:
     post:
       description: allow a user to create an account
@@ -61,7 +61,7 @@ paths:
       parameters:
         - $ref: '#/parameters/TokenHeader'
       responses:
-        '201':
+        '200':
           description: no body
           schema:
             type: object 
@@ -71,6 +71,7 @@ paths:
       operationId: adminplayer
       parameters:
         - $ref: '#/parameters/TokenHeader'
+        - $ref: '#/parameters/pagination'
       responses:        
         '200':
           description: "all the players"
@@ -88,10 +89,11 @@ paths:
       parameters:
         - $ref: '#/parameters/TokenHeader'
         - name: "id"
-          in: "path"
+          in: "body"
           description: "ID of the player to lock/unlock"
           required: true
-          type: string
+          schema:
+            type: string
       responses:
         '200':
           description: "all the players"
@@ -171,3 +173,10 @@ parameters:
     in: header
     required: true
     type: string
+  pagination:  
+    in: query
+    name: pagination
+    required: false
+    type: integer
+    minimum: 0
+    description: The number of the page

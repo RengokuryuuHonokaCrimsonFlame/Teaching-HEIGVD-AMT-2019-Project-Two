@@ -3,6 +3,7 @@ package ch.heigvd.dnd.api.endpoints;
 import ch.heigvd.dnd.api.RegisterApi;
 import ch.heigvd.dnd.api.dto.Jwttoken;
 import ch.heigvd.dnd.api.dto.Player;
+import ch.heigvd.dnd.configuration.JwtUserDetailsService;
 import ch.heigvd.dnd.entities.JwttokenEntity;
 import ch.heigvd.dnd.entities.PlayerEntity;
 import ch.heigvd.dnd.repositories.JwttokenRepository;
@@ -19,7 +20,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.validation.Valid;
 import java.net.URI;
 import java.sql.Timestamp;
-import java.util.Collection;
 import java.util.Date;
 import java.util.Optional;
 
@@ -34,6 +34,9 @@ public class RegisterApiController implements RegisterApi {
 
     @Autowired
     JwttokenRepository jwttokenRepository;
+
+    @Autowired
+    JwtUserDetailsService jwtUserDetailsService;
 
     @Override
     public ResponseEntity<Jwttoken> register(@ApiParam(value = "all player information" ,required=true )  @Valid @RequestBody Player player) {
@@ -75,7 +78,7 @@ public class RegisterApiController implements RegisterApi {
 
     private JwttokenEntity toJwttokenEntity(Player player){
         JwttokenEntity entity = new JwttokenEntity();
-        String id = entity.generateToken(player.getEmail());
+        String id = entity.generateToken(jwtUserDetailsService.loadUserByUsername(player.getEmail()));
         entity.setTemps((new Timestamp(new Date().getTime()).toString()));
         entity.setId(id);
         return entity;

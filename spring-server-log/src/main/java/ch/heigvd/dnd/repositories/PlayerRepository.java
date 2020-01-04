@@ -1,7 +1,7 @@
 package ch.heigvd.dnd.repositories;
 
 import ch.heigvd.dnd.entities.PlayerEntity;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
-public interface PlayerRepository extends CrudRepository<PlayerEntity, String> {
+public interface PlayerRepository extends PagingAndSortingRepository<PlayerEntity, String> {
 }
