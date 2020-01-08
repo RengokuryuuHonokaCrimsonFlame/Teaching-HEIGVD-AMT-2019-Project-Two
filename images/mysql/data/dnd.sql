@@ -43,7 +43,7 @@ CREATE TABLE playerParty(
 );
 
 CREATE TABLE jwttoken(
-	id VARCHAR(200) NOT NULL,
+	id VARCHAR(400) NOT NULL,
 	temps DATETIME NOT NULL,
 	CONSTRAINT ID_token PRIMARY KEY (id)
 );

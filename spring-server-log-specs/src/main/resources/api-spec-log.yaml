@@ -1,0 +1,182 @@
+swagger: '2.0'
+info:
+  version: '0.1.0'
+  title: User API
+  description: API to Login, Logout and register
+host: localhost
+basePath: /api
+schemes:
+- http
+paths:
+  /login:
+    post:
+      description: allow a user to connect
+      operationId: login
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: credentials
+          in: body
+          description: name and password
+          required: true
+          schema:
+            $ref: '#/definitions/credentials'
+      responses:
+        '200':
+          description: a jwttoken
+          schema:
+            $ref: '#/definitions/jwttoken'
+        '404':
+          description: "Wrong password or username"
+        '423':
+          description: "User locked"
+  /register:
+    post:
+      description: allow a user to create an account
+      operationId: register
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: player
+          in: body
+          description: all player information
+          required: true
+          schema:
+            $ref: '#/definitions/player'
+      responses:
+        '201':
+          description: a jwttoken
+          schema:
+            $ref: '#/definitions/jwttoken'
+        '409':
+          description: "Username already exists"
+  /logout:
+    get:
+      description: allow a user to logout
+      operationId: logout
+      parameters:
+        - $ref: '#/parameters/TokenHeader'
+      responses:
+        '200':
+          description: no body
+          schema:
+            type: object 
+  /adminplayer:
+    get:
+      description: allow an administrator to see all player
+      operationId: adminplayer
+      parameters:
+        - $ref: '#/parameters/TokenHeader'
+        - $ref: '#/parameters/pagination'
+      responses:        
+        '200':
+          description: "all the players"
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/player'
+        '403':
+          description: no body
+          schema:
+            type: object
+    post:
+      description: allow an administrator to lock/unlock a player
+      operationId: manageplayer
+      parameters:
+        - $ref: '#/parameters/TokenHeader'
+        - name: "id"
+          in: "body"
+          description: "ID of the player to lock/unlock"
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: "all the players"
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/player'
+        '403':
+          description: no body
+          schema:
+            type: object
+definitions:
+  credentials:
+    type: object
+    required:
+      - id
+      - password
+    properties:
+      id:
+        type: string
+      password:
+        type: string
+  jwttoken:
+    type: object
+    required:
+      - token
+    properties:
+      token:
+        type: string
+  player:
+    type: object
+    required:
+      - email
+      - pseudo
+      - password
+      - strength
+      - dexterity
+      - constitution
+      - intelligence
+      - wisdom
+      - charisma
+      - race    
+      - classe
+      - administrator
+      - blocked
+    properties:
+      email:
+        type: string
+      pseudo:
+        type: string
+      password:
+        type: string
+      strength:
+        type: integer
+      dexterity:
+        type: integer
+      constitution:
+        type: integer
+      intelligence:
+        type: integer
+      wisdom:
+        type: integer
+      charisma:
+        type: integer
+      race:
+        type: string
+      classe:
+        type: string
+      administrator:
+        type: boolean
+      blocked:
+        type: boolean
+parameters:
+  TokenHeader:
+    description: header that contain a JwtToken
+    name: x-dnd-token
+    in: header
+    required: true
+    type: string
+  pagination:  
+    in: query
+    name: pagination
+    required: false
+    type: integer
+    minimum: 0
+    description: The number of the page
