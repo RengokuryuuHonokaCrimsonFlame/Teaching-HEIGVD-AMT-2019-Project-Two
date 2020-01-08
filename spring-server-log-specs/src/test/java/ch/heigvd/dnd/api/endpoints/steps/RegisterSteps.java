@@ -18,10 +18,6 @@ public class RegisterSteps {
     private Environment environment;
     private DefaultApi api;
     private Player player;
-    private ApiResponse lastApiResponse;
-    private ApiException lastApiException;
-    private boolean lastApiCallThrewException;
-    private int lastStatusCode;
 
     public RegisterSteps(Environment environment) {
         this.environment = environment;
@@ -46,45 +42,19 @@ public class RegisterSteps {
         player.setPassword("toto1234");
     }
 
-    @Given("^there is a Player server$")
-    public void there_is_a_Player_server() throws Throwable {
-        assertNotNull(api);
-    }
 
     @When("^I post it to the /register endpoint$")
     public void i_post_it_to_the_register_endpoint() throws Exception {
         try {
-            lastApiResponse = api.registerWithHttpInfo(player);
-            lastApiCallThrewException = false;
-            lastApiException = null;
-            lastStatusCode = lastApiResponse.getStatusCode();
+            environment.setLastApiResponse(api.registerWithHttpInfo(player));
+            environment.setLastApiCallThrewException(false);
+            environment.setLastApiException(null);
+            environment.setLastStatusCode(environment.getLastApiResponse().getStatusCode());
         } catch (ApiException e) {
-            lastApiCallThrewException = true;
-            lastApiResponse = null;
-            lastApiException = e;
-            lastStatusCode = lastApiException.getCode();
-        }
-    }
-
-    @Then("^I received a (\\d+) status code$")
-    public void i_received_a_status_code(int arg1) throws Exception {
-        assertEquals(arg1, lastStatusCode);
-    }
-
-    @Then("^I have a x-token-dnd header$")
-    public void i_have_a_x_token_dnd_header() throws Exception {
-        // Write code here that turns the phrase above into concrete actions
-        assertNotNull(lastApiResponse.getHeaders().get("x-dnd-token"));
-    }
-
-    @Then("^I do not have a x-token-dnd header$")
-    public void i_do_not_have_a_x_token_dnd_header() throws Exception {
-        // Write code here that turns the phrase above into concrete actions
-        try{
-            lastApiResponse.getHeaders().get("x-dnd-token");
-            assertTrue(false);
-        } catch(NullPointerException e){
-            assertTrue(true);
+            environment.setLastApiCallThrewException(true);
+            environment.setLastApiResponse(null);
+            environment.setLastApiException(e);
+            environment.setLastStatusCode(environment.getLastApiException().getCode());
         }
     }
 }
