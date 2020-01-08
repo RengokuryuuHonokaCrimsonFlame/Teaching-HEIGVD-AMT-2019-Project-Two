@@ -6,7 +6,7 @@ info:
 host: localhost
 basePath: /api
 schemes:
-- http
+  - http
 paths:
   /login:
     post:
@@ -28,6 +28,33 @@ paths:
           description: a jwttoken
           schema:
             $ref: '#/definitions/jwttoken'
+        '403':
+          description: "Wrong password"
+        '404':
+          description: "User not found"
+        '423':
+          description: "User locked"
+  /changepassword:
+    post:
+      description: allow a user to connect
+      operationId: changepassword
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: oldpassword
+          in: header
+          required: true
+          type: string
+        - name: newpassword
+          in: header
+          required: true
+          type: string
+        - $ref: '#/parameters/TokenHeader'
+      responses:
+        '200':
+          description: "Password changed"
         '404':
           description: "Wrong password or username"
         '423':
@@ -41,12 +68,12 @@ paths:
       produces:
         - application/json
       parameters:
-        - name: player
+        - name: utilisateur
           in: body
           description: all player information
           required: true
           schema:
-            $ref: '#/definitions/player'
+            $ref: '#/definitions/utilisateur'
       responses:
         '201':
           description: a jwttoken
@@ -54,17 +81,6 @@ paths:
             $ref: '#/definitions/jwttoken'
         '409':
           description: "Username already exists"
-  /logout:
-    get:
-      description: allow a user to logout
-      operationId: logout
-      parameters:
-        - $ref: '#/parameters/TokenHeader'
-      responses:
-        '200':
-          description: no body
-          schema:
-            type: object 
   /adminplayer:
     get:
       description: allow an administrator to see all player
@@ -72,13 +88,13 @@ paths:
       parameters:
         - $ref: '#/parameters/TokenHeader'
         - $ref: '#/parameters/pagination'
-      responses:        
+      responses:
         '200':
           description: "all the players"
           schema:
             type: array
             items:
-              $ref: '#/definitions/player'
+              $ref: '#/definitions/utilisateur'
         '403':
           description: no body
           schema:
@@ -100,7 +116,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/player'
+              $ref: '#/definitions/utilisateur'
         '403':
           description: no body
           schema:
@@ -123,44 +139,17 @@ definitions:
     properties:
       token:
         type: string
-  player:
+  utilisateur:
     type: object
     required:
       - email
-      - pseudo
       - password
-      - strength
-      - dexterity
-      - constitution
-      - intelligence
-      - wisdom
-      - charisma
-      - race    
-      - classe
       - administrator
       - blocked
     properties:
       email:
         type: string
-      pseudo:
-        type: string
       password:
-        type: string
-      strength:
-        type: integer
-      dexterity:
-        type: integer
-      constitution:
-        type: integer
-      intelligence:
-        type: integer
-      wisdom:
-        type: integer
-      charisma:
-        type: integer
-      race:
-        type: string
-      classe:
         type: string
       administrator:
         type: boolean
@@ -173,7 +162,7 @@ parameters:
     in: header
     required: true
     type: string
-  pagination:  
+  pagination:
     in: query
     name: pagination
     required: false

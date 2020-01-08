@@ -14,3 +14,9 @@ services:
      - "6060:80"
     links:
      - mysql:db
+  server-log:
+    build: ../images/server-log
+    ports:
+        - "8090:8090"
+    links:
+     - mysql:db

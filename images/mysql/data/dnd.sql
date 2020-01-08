@@ -15,8 +15,7 @@ USE dnd;
 
 CREATE TABLE player (        
 	email VARCHAR(100) NOT NULL, 
-	pseudo VARCHAR(100) NOT NULL, 
-	password VARCHAR(100) NOT NULL, 	
+	pseudo VARCHAR(100) NOT NULL, 	
 	strength SMALLINT UNSIGNED NOT NULL,
 	dexterity SMALLINT UNSIGNED NOT NULL,
 	constitution SMALLINT UNSIGNED NOT NULL,
@@ -25,8 +24,6 @@ CREATE TABLE player (
 	charisma SMALLINT UNSIGNED NOT NULL,
 	race VARCHAR(30) NOT NULL,     
 	classe VARCHAR(30) NOT NULL,
-	administrator BOOLEAN NOT NULL,
-	blocked BOOLEAN NOT NULL,
 	CONSTRAINT ID_player PRIMARY KEY (email)
 );
 
@@ -40,12 +37,6 @@ CREATE TABLE playerParty(
 	fkPlayer VARCHAR(100) NOT NULL,     
 	fkParty VARCHAR(100) NOT NULL,     
 	CONSTRAINT ID_partyPlayer PRIMARY KEY (fkPlayer, fkParty)
-);
-
-CREATE TABLE jwttoken(
-	id VARCHAR(400) NOT NULL,
-	temps DATETIME NOT NULL,
-	CONSTRAINT ID_token PRIMARY KEY (id)
 );
 
 -- Constraints Section
@@ -63,9 +54,3 @@ ALTER TABLE playerParty
 	REFERENCES party (id) 
 	ON UPDATE CASCADE;	
 	
--- Tests Users
--- ___________
-INSERT INTO player VALUES ('adminOk@heig-vd.ch','testBot','admin1234',0,0,0,0,0,0,'Bot','Bot',true,false);
-INSERT INTO player VALUES ('normalOk@heig-vd.ch','testBot','admin1234',0,0,0,0,0,0,'Bot','Bot',false,false);
-INSERT INTO player VALUES ('adminLocked@heig-vd.ch','testBot','admin1234',0,0,0,0,0,0,'Bot','Bot',true,true);
-INSERT INTO player VALUES ('normalLocked@heig-vd.ch','testBot','admin1234',0,0,0,0,0,0,'Bot','Bot',false,true);

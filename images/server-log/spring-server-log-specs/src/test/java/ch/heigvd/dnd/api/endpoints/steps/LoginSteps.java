@@ -1,12 +1,9 @@
 package ch.heigvd.dnd.api.endpoints.steps;
 
 import ch.heigvd.dnd.ApiException;
-import ch.heigvd.dnd.ApiResponse;
 import ch.heigvd.dnd.api.DefaultApi;
 import ch.heigvd.dnd.api.dto.Credentials;
-import ch.heigvd.dnd.api.dto.Player;
 import ch.heigvd.dnd.api.endpoints.helpers.Environment;
-import cucumber.api.PendingException;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.When;
 

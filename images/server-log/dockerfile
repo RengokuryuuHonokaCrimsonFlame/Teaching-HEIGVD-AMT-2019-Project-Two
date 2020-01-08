@@ -1,0 +1,6 @@
+FROM openjdk:11-slim
+MAINTAINER Julien Rod
+COPY /spring-server-log/target/ch.heigvd.dnd.log-1.0.0.jar /opt/app/ch.heigvd.dnd.log-1.0.0.jar
+EXPOSE 8090
+
+CMD ["java","-jar","/opt/app/ch.heigvd.dnd.log-1.0.0.jar"]
