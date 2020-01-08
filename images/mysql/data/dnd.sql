@@ -62,3 +62,10 @@ ALTER TABLE playerParty
 	FOREIGN KEY (fkParty)     
 	REFERENCES party (id) 
 	ON UPDATE CASCADE;	
+	
+-- Tests Users
+-- ___________
+INSERT INTO player VALUES ('adminOk@heig-vd.ch','testBot','admin1234',0,0,0,0,0,0,'Bot','Bot',true,false);
+INSERT INTO player VALUES ('normalOk@heig-vd.ch','testBot','admin1234',0,0,0,0,0,0,'Bot','Bot',false,false);
+INSERT INTO player VALUES ('adminLocked@heig-vd.ch','testBot','admin1234',0,0,0,0,0,0,'Bot','Bot',true,true);
+INSERT INTO player VALUES ('normalLocked@heig-vd.ch','testBot','admin1234',0,0,0,0,0,0,'Bot','Bot',false,true);
