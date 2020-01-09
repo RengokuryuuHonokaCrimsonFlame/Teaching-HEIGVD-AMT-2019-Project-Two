@@ -43,14 +43,12 @@ paths:
       produces:
         - application/json
       parameters:
-        - name: oldpassword
-          in: header
+        - name: passwords
+          in: body
+          description: name and password
           required: true
-          type: string
-        - name: newpassword
-          in: header
-          required: true
-          type: string
+          schema:
+            $ref: '#/definitions/passwords'
         - $ref: '#/parameters/TokenHeader'
       responses:
         '200':
@@ -104,12 +102,12 @@ paths:
       operationId: manageplayer
       parameters:
         - $ref: '#/parameters/TokenHeader'
-        - name: "id"
+        - name: simpleuser
           in: "body"
           description: "ID of the player to lock/unlock"
           required: true
           schema:
-            type: string
+            $ref: '#/definitions/simpleuser'
       responses:
         '200':
           description: "all the players"
@@ -138,6 +136,23 @@ definitions:
       - token
     properties:
       token:
+        type: string
+  passwords:
+    type: object
+    required:
+      - oldpassword
+      - newpassword
+    properties:
+      oldpassword:
+        type: string
+      newpassword:
+        type: string
+  simpleuser:
+    type: object
+    required:
+      - userid
+    properties:
+      userid:
         type: string
   utilisateur:
     type: object

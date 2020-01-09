@@ -45,6 +45,14 @@ public class LoginSteps {
         credentials.setPassword("admin1234");
     }
 
+    @Given("^I have a normal Player Credential new$")
+    public void i_have_a_normal_Player_Credential_new() throws Throwable {
+        // Write code here that turns the phrase above into concrete actions
+        credentials = new Credentials();
+        credentials.setId("normalOk@heig-vd.ch");
+        credentials.setPassword("admin1235");
+    }
+
 
     @When("^I post it to the /login endpoint$")
     public void i_post_it_to_the_login_endpoint() throws Throwable {

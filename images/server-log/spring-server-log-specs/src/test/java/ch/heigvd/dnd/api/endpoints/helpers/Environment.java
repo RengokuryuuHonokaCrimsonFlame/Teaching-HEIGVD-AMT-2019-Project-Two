@@ -13,6 +13,7 @@ public class Environment {
     private ApiException lastApiException;
     private boolean lastApiCallThrewException;
     private int lastStatusCode;
+    private String token;
 
     public Environment() throws IOException {
         Properties properties = new Properties();
@@ -55,5 +56,13 @@ public class Environment {
 
     public void setLastStatusCode(int lastStatusCode) {
         this.lastStatusCode = lastStatusCode;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }

@@ -1,6 +1,7 @@
 package ch.heigvd.dnd.api.endpoints;
 
 import ch.heigvd.dnd.api.AdminplayerApi;
+import ch.heigvd.dnd.api.dto.Simpleuser;
 import ch.heigvd.dnd.api.dto.Utilisateur;
 import ch.heigvd.dnd.configuration.JwtUserDetailsService;
 import ch.heigvd.dnd.entities.UtilisateurEntity;
@@ -18,6 +19,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -35,32 +37,28 @@ public class AdminplayerApiController implements AdminplayerApi {
     JwtUserDetailsService jwtUserDetailsService;
 
     @Override
-    public ResponseEntity<List<Utilisateur>> adminplayer(@ApiParam(value = "header that contain a JwtToken" ,required=true)
-                              @RequestHeader(value="x-dnd-token", required=true) String xDndToken,
-                                                         @ApiParam(value = "the page to see" ,required=true )  @Valid @RequestParam Integer page) {
+    public ResponseEntity<List<Utilisateur>> adminplayer(@ApiParam(value = "header that contain a JwtToken" ,required=true) @RequestHeader(value="x-dnd-token", required=true) String xDndToken,@Min(0)@ApiParam(value = "The number of the page") @Valid @RequestParam(value = "pagination", required = false) Integer pagination) {
         String userId = new JwttokenLogic().getUsernameFromToken(xDndToken);
         Optional<UtilisateurEntity> administrator = playerRepository.findById(userId);
         if(administrator.isPresent()) {
             UserDetails userDetails = this.jwtUserDetailsService.loadUserByUsername(administrator.get().getEmail());
             if (administrator.get().isAdministrator() && !administrator.get().isBlocked()
                     && new JwttokenLogic().validateToken(xDndToken, userDetails)) {
-                return getPlayers(page);
+                return getPlayers(pagination);
             }
         }
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
     @Override
-    public ResponseEntity<List<Utilisateur>> manageplayer(@ApiParam(value = "header that contain a JwtToken" ,required=true)
-                        @RequestHeader(value="x-dnd-token", required=true) String xDndToken,
-                        @ApiParam(value = "the user to change right" ,required=true )  @Valid @RequestBody String id) {
-        String userId = new JwttokenLogic().getUsernameFromToken(xDndToken);
+    public ResponseEntity<List<Utilisateur>> manageplayer(@ApiParam(value = "header that contain a JwtToken" ,required=true) @RequestHeader(value="x-dnd-token", required=true) String xDndToken,@ApiParam(value = "ID of the player to lock/unlock" ,required=true )  @Valid @RequestBody Simpleuser simpleuser) {
+       String userId = new JwttokenLogic().getUsernameFromToken(xDndToken);
         Optional<UtilisateurEntity> administrator = playerRepository.findById(userId);
         if(administrator.isPresent()) {
             UserDetails userDetails = this.jwtUserDetailsService.loadUserByUsername(administrator.get().getEmail());
             if (administrator.get().isAdministrator() && !administrator.get().isBlocked()
                 && new JwttokenLogic().validateToken(xDndToken, userDetails)) {
-                Optional<UtilisateurEntity> updatePlayer = playerRepository.findById(id);
+                Optional<UtilisateurEntity> updatePlayer = playerRepository.findById(simpleuser.getUserid());
                 if(updatePlayer.isPresent()){
                     UtilisateurEntity playerToUpdate = updatePlayer.get();
                     playerToUpdate.setBlocked(!playerToUpdate.isBlocked());

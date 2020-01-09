@@ -1,4 +1,4 @@
-Feature: Application Login
+Feature: Application Register
   Background:
     Given there is a Player server
 
