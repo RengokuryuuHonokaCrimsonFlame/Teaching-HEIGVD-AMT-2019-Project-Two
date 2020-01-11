@@ -54,3 +54,13 @@ ALTER TABLE playerParty
 	REFERENCES party (id) 
 	ON UPDATE CASCADE;	
 	
+INSERT INTO player VALUES ('adminOk@heig-vd.ch','adminOk',21,18,42,63,99,12,'Bot','Bot');
+INSERT INTO player VALUES ('normalOk@heig-vd.ch','normalOk',42,17,2,10,97,98,'Bot','Bot');
+INSERT INTO party VALUES ('myparty',10);
+INSERT INTO playerParty VALUES ('adminOk@heig-vd.ch','myparty');
+INSERT INTO playerParty VALUES ('normalOk@heig-vd.ch','myparty');
+
+
+
+
+

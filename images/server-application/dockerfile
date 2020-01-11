@@ -1,0 +1,6 @@
+FROM openjdk:11-slim
+MAINTAINER Julien Rod
+COPY /spring-server-application/target/ch.heigvd.dnd.application-1.0.0.jar /opt/app/ch.heigvd.dnd.application-1.0.0.jar
+EXPOSE 8091
+
+CMD ["java","-jar","/opt/app/ch.heigvd.dnd.application-1.0.0.jar"]

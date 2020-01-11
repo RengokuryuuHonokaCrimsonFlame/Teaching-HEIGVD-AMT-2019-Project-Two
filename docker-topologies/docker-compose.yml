@@ -20,3 +20,9 @@ services:
         - "8090:8090"
     links:
      - mysql:db
+  server-application:
+    build: ../images/server-application
+    ports:
+        - "8091:8091"
+    links:
+     - mysql:db
