@@ -75,7 +75,7 @@ paths:
             type: object
             items:
               $ref: '#/definitions/partypage'
-        '403':
+        '401':
           description: "You have not authorization to access this user data"
   /party:
     get:
@@ -177,14 +177,14 @@ definitions:
   playerpage:
     type: object
     required:
-      - page
+      - mypage
       - player
       - parties
     properties:
-      page:
+      mypage:
         type: object
         items:
-          $ref: '#/definitions/page'
+          $ref: '#/definitions/mypage'
       player:
         type: object
         items:
@@ -196,14 +196,14 @@ definitions:
   partypage:
     type: object
     required:
-      - page
+      - mypage
       - party
       - players
     properties:
-      page:
+      mypage:
         type: object
         items:
-          $ref: '#/definitions/page'
+          $ref: '#/definitions/mypage'
       party:
         type: object
         items:
@@ -260,18 +260,18 @@ definitions:
   parties:
     type: object
     required:
-      - page
+      - mypage
       - parties
     properties:
-      page:
+      mypage:
         type: object
         items:
-          $ref: '#/definitions/page'
+          $ref: '#/definitions/my'
       parties:
         type: array
         items:
           $ref: '#/definitions/party'
-  page:
+  mypage:
     type: object
     required:
       - nbEntries

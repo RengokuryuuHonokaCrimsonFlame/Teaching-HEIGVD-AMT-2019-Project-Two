@@ -59,32 +59,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <!--<plugin>
-                <groupId>org.openapitools</groupId>
-                <artifactId>openapi-generator-maven-plugin</artifactId>
-                <version>4.2.1</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <inputSpec>${basedir}/src/main/resources/api-spec-log.yaml</inputSpec>
-                            <language>spring</language>
-                            <configOptions>
-                                <dateLibrary>joda</dateLibrary>
-                                <useBeanValidation>true</useBeanValidation>
-                                <interfaceOnly>true</interfaceOnly>
-                                <delegatePattern>false</delegatePattern>
-                                <apiPackage>ch.heigvd.dnd.api</apiPackage>
-                                <configPackage>ch.heigvd.dnd.config</configPackage>
-                                <basePackage>ch.heigvd.dnd</basePackage>
-                                <modelPackage>ch.heigvd.dnd.api.model</modelPackage>
-                            </configOptions>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>-->
         </plugins>
     </build>
     <dependencies>
@@ -188,5 +162,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
 </project>

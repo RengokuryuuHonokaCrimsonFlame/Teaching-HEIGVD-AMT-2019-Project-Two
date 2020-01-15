@@ -1,4 +1,4 @@
-package io.swagger.api.util;
+package ch.heigvd.dnd.api.util;
 
 import javax.xml.bind.annotation.XmlTransient;
 

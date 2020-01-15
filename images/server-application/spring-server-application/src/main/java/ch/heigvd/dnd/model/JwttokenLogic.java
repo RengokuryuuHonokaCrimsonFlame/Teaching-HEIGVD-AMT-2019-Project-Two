@@ -1,4 +1,4 @@
-package io.swagger.model;
+package ch.heigvd.dnd.model;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -52,7 +52,7 @@ public class JwttokenLogic {
         return Jwts.parser().setSigningKey(SECRET).parseClaimsJws(token).getBody();
     }
 
-    private Boolean isTokenExpired(String token) {
+    public Boolean isTokenExpired(String token) {
         final Date expiration = getExpirationDateFromToken(token);
         return expiration.before(new Date());
     }
@@ -68,8 +68,8 @@ public class JwttokenLogic {
                 .signWith(SignatureAlgorithm.HS512, SECRET).compact();
     }
 
-    public Boolean validateToken(String token, UserDetails userDetails) {
+    public Boolean validateToken(String token, String email) {
         final String username = getUsernameFromToken(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        return (username.equals(email) && !isTokenExpired(token));
     }
 }
