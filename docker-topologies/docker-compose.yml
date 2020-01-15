@@ -17,14 +17,14 @@ services:
       build: ../images/server-log
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.server-log.rule=Host(`www.heigvd-dnd.ch`) && PathPrefix(`/log`)"
+        - "traefik.http.routers.server-log.rule=PathPrefix(`/log`)"
         - "traefik.http.middlewares.strip-log.stripprefix.prefixes=/log"
         - "traefik.http.routers.server-log.middlewares=strip-log"
     app:
       build: ../images/server-application
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.server-application.rule=Host(`www.heigvd-dnd.ch`) && PathPrefix(`/app`)"
+        - "traefik.http.routers.server-application.rule=PathPrefix(`/app`)"
         - "traefik.http.middlewares.strip-app.stripprefix.prefixes=/app"
         - "traefik.http.routers.server-application.middlewares=strip-app"
   mysql:
