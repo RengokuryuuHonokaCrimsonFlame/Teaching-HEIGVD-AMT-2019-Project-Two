@@ -13,7 +13,6 @@ import ch.heigvd.dnd.repositories.PartyRepository;
 import ch.heigvd.dnd.repositories.PlayerPartyRepository;
 import ch.heigvd.dnd.repositories.PlayerRepository;
 import io.swagger.annotations.*;
-import org.graalvm.compiler.nodes.calc.IntegerDivRemNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,7 +20,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -53,7 +51,7 @@ public class PlayerApiController implements PlayerApi {
         if(new JwttokenLogic().isTokenExpired(xDndToken) || !pe.isPresent()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        partyRepository.save(getPartyEntityFromParty(party));
+        partyRepository.save(PartyApiController.getPartyEntityFromParty(party));
         return ResponseEntity.status(HttpStatus.CREATED).body(party);
     }
 
@@ -96,15 +94,16 @@ public class PlayerApiController implements PlayerApi {
         }
         PlayerEntity pe = getPlayerEntityFromPlayer(player);
         playerRepository.save(pe);
-        return new ResponseEntity<Void>(HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     private List<Party> getPlayerParties(Integer page, String email){
-        List<PlayerPartyEntity> relations = playerPartyRepository.findRelationByPlayer(email, page * 60);
+        Pageable myPage = PageRequest.of(page, 60, Sort.by("party_id"));
+        Page<PlayerPartyEntity> relations = playerPartyRepository.findByPlayerEmail(email, myPage);
         List<Party> parties = new LinkedList<>();
         for(PlayerPartyEntity ppe : relations){
-            Optional<PartyEntity> partie = partyRepository.findById(ppe.getKey().getFkParty());
-            parties.add(getPartyFromPartyEntity(partie.get()));
+            Optional<PartyEntity> partie = partyRepository.findById(ppe.getParty().getId());
+            parties.add(PartyApiController.getPartyFromPartyEntity(partie.get()));
         }
         return parties;
     }
@@ -115,13 +114,13 @@ public class PlayerApiController implements PlayerApi {
         if(page <= 0){
             p.setPrevious("-");
         }else{
-            p.setPrevious("ch.heigvd.dnd/player?page=" + (page - 1));
+            p.setPrevious("www.heigvd-dnd.ch/player?page=" + (page - 1));
         }
-        p.setNbEntries(playerPartyRepository.CountRelationByPlayer(email));
+        p.setNbEntries(playerPartyRepository.countByPlayerEmail(email));
         if(page >= (p.getNbEntries()/60)){
             p.setNext("-");
         }else{
-            p.setNext("ch.heigvd.dnd/player?page=" + (page + 1));
+            p.setNext("www.heigvd-dnd.ch/player?page=" + (page + 1));
         }
         return p;
     }
@@ -153,20 +152,6 @@ public class PlayerApiController implements PlayerApi {
         pe.setWisdom(p.getWisdom());
         pe.setClasse(p.getClasse());
         pe.setRace(p.getRace());
-        return pe;
-    }
-
-    static Party getPartyFromPartyEntity(PartyEntity pe){
-        Party p = new Party();
-        p.setId(pe.getId());
-        p.setReputation(pe.getReputation());
-        return p;
-    }
-
-    static PartyEntity getPartyEntityFromParty(Party p){
-        PartyEntity pe = new PartyEntity();
-        pe.setId(p.getId());
-        pe.setReputation(p.getReputation());
         return pe;
     }
 }

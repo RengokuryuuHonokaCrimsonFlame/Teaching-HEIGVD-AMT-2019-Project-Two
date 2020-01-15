@@ -1,32 +1,5 @@
 version: '2'
 services:
-  reverse-proxy:
-    image: traefik:v2.1.2
-    command: --api.insecure=true --providers.docker --providers.docker.exposedbydefault=false
-
-    ports:
-      # The HTTP port
-      - "80:80"
-      # The Web UI (enabled by --api.insecure=true)
-      - "2020:8080"
-    volumes:
-      # So that Traefik can listen to the Docker events
-      - /var/run/docker.sock:/var/run/docker.sock
-
-    log:
-      build: ../images/server-log
-      labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.server-log.rule=PathPrefix(`/log`)"
-        - "traefik.http.middlewares.strip-log.stripprefix.prefixes=/log"
-        - "traefik.http.routers.server-log.middlewares=strip-log"
-    app:
-      build: ../images/server-application
-      labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.server-application.rule=PathPrefix(`/app`)"
-        - "traefik.http.middlewares.strip-app.stripprefix.prefixes=/app"
-        - "traefik.http.routers.server-application.middlewares=strip-app"
   mysql:
     build: ../images/mysql
     environment: 
@@ -47,9 +20,34 @@ services:
         - "8090:8090"
     links:
      - mysql:db
-  #server-application:
-  #  build: ../images/server-application
-  #  ports:
-  #      - "8091:8091"
-  #  links:
-  #   - mysql:db
+    labels:
+     - "traefik.enable=true"
+     - "traefik.http.routers.server-log.rule=PathPrefix(`/log`)"
+     - "traefik.http.middlewares.strip-log.stripprefix.prefixes=/log"
+     - "traefik.http.routers.server-log.middlewares=strip-log"
+  server-application:
+    build: ../images/server-application
+    ports:
+        - "8091:8091"
+    links:
+     - mysql:db
+    labels:
+     - "traefik.enable=true"
+     - "traefik.http.routers.server-application.rule=PathPrefix(`/app`)"
+     - "traefik.http.middlewares.strip-app.stripprefix.prefixes=/app"
+     - "traefik.http.routers.server-application.middlewares=strip-app"
+  reverse-proxy:
+    image: traefik:v2.1.2
+    command: --api.insecure=true --providers.docker --providers.docker.exposedbydefault=false
+
+    ports:
+      # The HTTP port
+      - "80:80"
+      # The Web UI (enabled by --api.insecure=true)
+      - "2020:8080"
+    volumes:
+      # So that Traefik can listen to the Docker events
+      - /var/run/docker.sock:/var/run/docker.sock
+       
+  
+  

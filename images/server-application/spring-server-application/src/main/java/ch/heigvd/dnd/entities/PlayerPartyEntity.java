@@ -1,23 +1,42 @@
 package ch.heigvd.dnd.entities;
 
-import ch.heigvd.dnd.entities.keys.PlayerPartyKey;
-
-import javax.persistence.EmbeddedId;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "playerParty")
+@Table(name = "player_party")
 public class PlayerPartyEntity implements Serializable {
-    @EmbeddedId
-    private PlayerPartyKey key;
+    @Id
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    long id;
 
-    public PlayerPartyKey getKey() {
-        return key;
+    @ManyToOne
+    private PlayerEntity player;
+
+    @ManyToOne
+    private PartyEntity party;
+
+    public long getId() {
+        return id;
     }
 
-    public void setKey(PlayerPartyKey key) {
-        this.key = key;
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public PlayerEntity getPlayer() {
+        return player;
+    }
+
+    public void setPlayer(PlayerEntity player) {
+        this.player = player;
+    }
+
+    public PartyEntity getParty() {
+        return party;
+    }
+
+    public void setParty(PartyEntity party) {
+        this.party = party;
     }
 }

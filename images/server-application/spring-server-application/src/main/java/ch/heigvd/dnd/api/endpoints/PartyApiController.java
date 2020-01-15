@@ -1,11 +1,10 @@
 package ch.heigvd.dnd.api.endpoints;
 
 import ch.heigvd.dnd.api.PartyApi;
-import ch.heigvd.dnd.api.dto.Mypage;
-import ch.heigvd.dnd.api.dto.Parties;
-import ch.heigvd.dnd.api.dto.Party;
+import ch.heigvd.dnd.api.dto.*;
 import ch.heigvd.dnd.entities.PartyEntity;
 import ch.heigvd.dnd.entities.PlayerEntity;
+import ch.heigvd.dnd.entities.PlayerPartyEntity;
 import ch.heigvd.dnd.model.JwttokenLogic;
 import ch.heigvd.dnd.repositories.PartyRepository;
 import ch.heigvd.dnd.repositories.PlayerPartyRepository;
@@ -51,55 +50,82 @@ public class PartyApiController implements PartyApi {
         }
         Parties p = new Parties();
         p.setMypage(getMyPageParty(pagination));
-        Pageable myPage = PageRequest.of(pagination, 60, Sort.by("email"));
+        Pageable myPage = PageRequest.of(pagination, 60, Sort.by("id"));
         Page<PartyEntity> parts = partyRepository.findAll(myPage);
         List<Party> result = new LinkedList();
         for(PartyEntity pent : parts){
-            result.add(playerEntityToPlayer(p));
+            result.add(getPartyFromPartyEntity(pent));
         }
-        return new ResponseEntity<Object>(HttpStatus.NOT_IMPLEMENTED);
+        p.setParties(result);
+        return ResponseEntity.status(HttpStatus.OK).body(p);
     }
 
     public ResponseEntity<Object> getParty(@ApiParam(value = "header that contain a JwtToken" ,required=true) @RequestHeader(value="x-dnd-token", required=true) String xDndToken,@ApiParam(value = "ID of the party to return",required=true) @PathVariable("id") String id,@Min(0)@ApiParam(value = "The number of the page") @Valid @RequestParam(value = "pagination", required = false) Integer pagination) {
-        /*String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
-            try {
-                return new ResponseEntity<Object>(objectMapper.readValue("\"{}\"", Object.class), HttpStatus.NOT_IMPLEMENTED);
-            } catch (IOException e) {
-                log.error("Couldn't serialize response for content type application/json", e);
-                return new ResponseEntity<Object>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        }*/
-
-        return new ResponseEntity<Object>(HttpStatus.NOT_IMPLEMENTED);
+        String userId = new JwttokenLogic().getUsernameFromToken(xDndToken);
+        Optional<PlayerEntity> pe = playerRepository.findById(userId);
+        if(new JwttokenLogic().isTokenExpired(xDndToken) || !pe.isPresent()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        Optional<PartyEntity> party = partyRepository.findById(id);
+        if(party.isPresent()){
+            Partypage pp = new Partypage();
+            pp.setParty(getPartyFromPartyEntity(party.get()));
+            pp.setMypage(getMyPage(pagination, party.get().getId()));
+            pp.setPlayers(getPartyPlayers(pagination, party.get().getId()));
+            return ResponseEntity.status(HttpStatus.OK).body(pp);
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     public ResponseEntity<Object> joinParty(@ApiParam(value = "header that contain a JwtToken" ,required=true) @RequestHeader(value="x-dnd-token", required=true) String xDndToken,@ApiParam(value = "ID of the party to return",required=true) @PathVariable("id") String id) {
-        /*String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
-            try {
-                return new ResponseEntity<Object>(objectMapper.readValue("\"{}\"", Object.class), HttpStatus.NOT_IMPLEMENTED);
-            } catch (IOException e) {
-                log.error("Couldn't serialize response for content type application/json", e);
-                return new ResponseEntity<Object>(HttpStatus.INTERNAL_SERVER_ERROR);
+        if(new JwttokenLogic().isTokenExpired(xDndToken)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        String userId = new JwttokenLogic().getUsernameFromToken(xDndToken);
+        Optional<PlayerEntity> ple = playerRepository.findById(userId);
+        Optional<PartyEntity> pae = partyRepository.findById(id);
+        if(ple.isPresent() && pae.isPresent()){
+            Optional<PlayerPartyEntity> check = playerPartyRepository.findByPartyIdAndPlayerEmail(id,userId);
+            if(!check.isPresent()){
+                PlayerPartyEntity ppe = new PlayerPartyEntity();
+                Optional<PlayerEntity> player = playerRepository.findById(userId);
+                Optional<PartyEntity> party = partyRepository.findById(id);
+                ppe.setParty(party.get());
+                ppe.setPlayer(player.get());
+                playerPartyRepository.save(ppe);
             }
-        }*/
-
-        return new ResponseEntity<Object>(HttpStatus.NOT_IMPLEMENTED);
+            return getParty(xDndToken, id, 0);
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     public ResponseEntity<Object> quitParty(@ApiParam(value = "header that contain a JwtToken" ,required=true) @RequestHeader(value="x-dnd-token", required=true) String xDndToken,@ApiParam(value = "ID of the party to return",required=true) @PathVariable("id") String id) {
-        /*String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
-            try {
-                return new ResponseEntity<Object>(objectMapper.readValue("\"{}\"", Object.class), HttpStatus.NOT_IMPLEMENTED);
-            } catch (IOException e) {
-                log.error("Couldn't serialize response for content type application/json", e);
-                return new ResponseEntity<Object>(HttpStatus.INTERNAL_SERVER_ERROR);
+        if(new JwttokenLogic().isTokenExpired(xDndToken)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        String userId = new JwttokenLogic().getUsernameFromToken(xDndToken);
+        Optional<PlayerEntity> ple = playerRepository.findById(userId);
+        Optional<PartyEntity> pae = partyRepository.findById(id);
+        if(ple.isPresent() && pae.isPresent()){
+            Optional<PlayerPartyEntity> check = playerPartyRepository.findByPartyIdAndPlayerEmail(id, userId);
+            if(check.isPresent()){
+                playerPartyRepository.deleteById(check.get().getId());
             }
-        }*/
+            return getParty(xDndToken, id, 0);
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
 
-        return new ResponseEntity<Object>(HttpStatus.NOT_IMPLEMENTED);
+    private List<Player> getPartyPlayers(Integer page, String id){
+        Pageable myPage = PageRequest.of(page, 60, Sort.by("player_email"));
+        Page<PlayerPartyEntity> relations = playerPartyRepository.findByPartyId(id, myPage);
+        List<Player> players = new LinkedList<>();
+        for(PlayerPartyEntity ppe : relations){
+
+            Optional<PlayerEntity> player = playerRepository.findById(ppe.getPlayer().getEmail());
+            players.add(PlayerApiController.getPlayerFromPlayerEntity(player.get()));
+        }
+        return players;
     }
 
     private Mypage getMyPageParty(Integer page){
@@ -108,14 +134,46 @@ public class PartyApiController implements PartyApi {
         if(page <= 0){
             p.setPrevious("-");
         }else{
-            p.setPrevious("ch.heigvd.dnd/party?page=" + (page - 1));
+            p.setPrevious("www.heigvd-dnd.ch/party?page=" + (page - 1));
         }
         p.setNbEntries((int)partyRepository.count());
         if(page >= (p.getNbEntries()/60)){
             p.setNext("-");
         }else{
-            p.setNext("ch.heigvd.dnd/party?page=" + (page + 1));
+            p.setNext("www.heigvd-dnd.ch/party?page=" + (page + 1));
         }
         return p;
+    }
+
+    private Mypage getMyPage(Integer page, String id){
+        Mypage p = new Mypage();
+        p.setPagination(page);
+        if(page <= 0){
+            p.setPrevious("-");
+        }else{
+            p.setPrevious("www.heigvd-dnd.ch/player?page=" + (page - 1));
+        }
+        p.setNbEntries(playerPartyRepository.countByPartyId(id));
+        if(page >= (p.getNbEntries()/60)){
+            p.setNext("-");
+        }else{
+            p.setNext("www.heigvd-dnd.ch/player?page=" + (page + 1));
+        }
+        return p;
+    }
+
+
+    static Party getPartyFromPartyEntity(PartyEntity pe){
+        Party p = new Party();
+        p.setId(pe.getId());
+        p.setReputation(pe.getReputation());
+        return p;
+    }
+
+    static PartyEntity getPartyEntityFromParty(Party p){
+        PartyEntity pe = new PartyEntity();
+        pe.setId(p.getId());
+        pe.setReputation(p.getReputation());
+        return pe;
     }
 }

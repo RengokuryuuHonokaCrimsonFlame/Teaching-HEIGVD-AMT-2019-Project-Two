@@ -7,7 +7,7 @@ import javax.persistence.Table;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "party")
+@Table(name = "player")
 public class PlayerEntity implements Serializable {
     @Id
     @Column(name="email", unique=true)
