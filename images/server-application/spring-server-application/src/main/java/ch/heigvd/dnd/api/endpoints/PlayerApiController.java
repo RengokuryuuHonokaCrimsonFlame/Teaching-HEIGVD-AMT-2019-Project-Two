@@ -12,6 +12,7 @@ import ch.heigvd.dnd.model.JwttokenLogic;
 import ch.heigvd.dnd.repositories.PartyRepository;
 import ch.heigvd.dnd.repositories.PlayerPartyRepository;
 import ch.heigvd.dnd.repositories.PlayerRepository;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -46,55 +47,68 @@ public class PlayerApiController implements PlayerApi {
     PlayerPartyRepository playerPartyRepository;
 
     public ResponseEntity<Object> createParty(@ApiParam(value = "the new party" ,required=true )  @Valid @RequestBody Party party, @ApiParam(value = "header that contain a JwtToken" ,required=true) @RequestHeader(value="x-dnd-token", required=true) String xDndToken) {
-        String userId = new JwttokenLogic().getUsernameFromToken(xDndToken);
-        Optional<PlayerEntity> pe = playerRepository.findById(userId);
-        if(new JwttokenLogic().isTokenExpired(xDndToken) || !pe.isPresent()) {
+        try{
+            String userId = new JwttokenLogic().getUsernameFromToken(xDndToken);
+            Optional<PlayerEntity> pe = playerRepository.findById(userId);
+            if(!pe.isPresent()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+            Optional<PartyEntity> exists = partyRepository.findById(party.getId());
+            if(exists.isPresent()){
+                return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            }
+            partyRepository.save(PartyApiController.getPartyEntityFromParty(party));
+            return ResponseEntity.status(HttpStatus.CREATED).body(party);
+        }catch(ExpiredJwtException ex){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        partyRepository.save(PartyApiController.getPartyEntityFromParty(party));
-        return ResponseEntity.status(HttpStatus.CREATED).body(party);
     }
 
     public ResponseEntity<Object> getplayer(@ApiParam(value = "header that contain a JwtToken" ,required=true) @RequestHeader(value="x-dnd-token", required=true) String xDndToken,@Min(0)@ApiParam(value = "The number of the page") @Valid @RequestParam(value = "pagination", required = false) Integer pagination) {
-        String userId = new JwttokenLogic().getUsernameFromToken(xDndToken);
-        if(new JwttokenLogic().isTokenExpired(xDndToken)) {
+        try {
+            String userId = new JwttokenLogic( ).getUsernameFromToken(xDndToken);
+            Optional<PlayerEntity> player = playerRepository.findById(userId);
+            if (player.isPresent( )) {
+                Playerpage pp = new Playerpage( );
+                pp.setPlayer(getPlayerFromPlayerEntity(player.get( )));
+                pp.setMypage(getMyPage(pagination, userId));
+                pp.setParties(getPlayerParties(pagination, userId));
+                return ResponseEntity.status(HttpStatus.OK).body(pp);
+            } else {
+                PlayerEntity pe = new PlayerEntity( );
+                pe.setEmail(userId);
+                pe.setCharisma(6);
+                pe.setClasse("Undifined");
+                pe.setConstitution(6);
+                pe.setDexterity(6);
+                pe.setIntelligence(6);
+                pe.setPseudo("Undifined");
+                pe.setRace("Undifined");
+                pe.setStrength(6);
+                pe.setWisdom(6);
+                playerRepository.save(pe);
+                Playerpage pp = new Playerpage( );
+                pp.setPlayer(getPlayerFromPlayerEntity(pe));
+                pp.setMypage(getMyPage(0, userId));
+                pp.setParties(getPlayerParties(0, userId));
+                return ResponseEntity.status(HttpStatus.CREATED).body(pp);
+            }
+        }catch(ExpiredJwtException ex){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-        Optional<PlayerEntity> player = playerRepository.findById(userId);
-        if(player.isPresent()) {
-            Playerpage pp = new Playerpage();
-            pp.setPlayer(getPlayerFromPlayerEntity(player.get()));
-            pp.setMypage(getMyPage(pagination, userId));
-            pp.setParties(getPlayerParties(pagination, userId));
-            return ResponseEntity.status(HttpStatus.OK).body(pp);
-        }else{
-            PlayerEntity pe = new PlayerEntity();
-            pe.setEmail(userId);
-            pe.setCharisma(6);
-            pe.setClasse("Undifined");
-            pe.setConstitution(6);
-            pe.setDexterity(6);
-            pe.setIntelligence(6);
-            pe.setPseudo("Undifined");
-            pe.setRace("Undifined");
-            pe.setStrength(6);
-            pe.setWisdom(6);
-            playerRepository.save(pe);
-            Playerpage pp = new Playerpage();
-            pp.setPlayer(getPlayerFromPlayerEntity(pe));
-            pp.setMypage(getMyPage(0, userId));
-            pp.setParties(getPlayerParties(0, userId));
-            return ResponseEntity.status(HttpStatus.CREATED).body(pp);
         }
     }
 
     public ResponseEntity<Void> updateplayer(@ApiParam(value = "the player" ,required=true )  @Valid @RequestBody Player player, @ApiParam(value = "header that contain a JwtToken" ,required=true) @RequestHeader(value="x-dnd-token", required=true) String xDndToken) {
-        if(!new JwttokenLogic().validateToken(xDndToken, player.getEmail())){
+        try {
+            if (!new JwttokenLogic( ).validateToken(xDndToken, player.getEmail( ))) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build( );
+            }
+            PlayerEntity pe = getPlayerEntityFromPlayer(player);
+            playerRepository.save(pe);
+            return ResponseEntity.status(HttpStatus.OK).build( );
+        }catch(ExpiredJwtException ex){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        PlayerEntity pe = getPlayerEntityFromPlayer(player);
-        playerRepository.save(pe);
-        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     private List<Party> getPlayerParties(Integer page, String email){

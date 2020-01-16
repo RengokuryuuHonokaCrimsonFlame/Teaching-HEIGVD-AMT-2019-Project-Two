@@ -39,6 +39,11 @@ public class CommonSteps {
         environment.setToken(new JwttokenLogic().generateToken(ud));
     }
 
+    @Given("^I have a Player old Token$")
+    public void i_have_a_Player_old_Token() throws Throwable {
+        environment.setToken("eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJub3JtYWxPa0BoZWlnLXZkLmNoIiwiZXhwIjoxNTc4NTk4NDUyLCJpYXQiOjE1Nzg1ODA0NTJ9.KL0sWp-4OX7wOsfFz68K5xRIJ_wrjOfnrfFWtKZD4gmQWmDbsP3PvU9wa53PxCuVJuRW3K-0s_ZGkPzbaDGo_A");
+    }
+
     @Then("^I received a (\\d+) status code$")
     public void i_received_a_status_code(int arg1) throws Throwable {
         assertEquals(arg1, environment.getLastStatusCode());

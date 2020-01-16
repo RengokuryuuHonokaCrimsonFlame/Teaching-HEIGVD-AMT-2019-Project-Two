@@ -9,6 +9,7 @@ import ch.heigvd.dnd.model.JwttokenLogic;
 import ch.heigvd.dnd.repositories.PartyRepository;
 import ch.heigvd.dnd.repositories.PlayerPartyRepository;
 import ch.heigvd.dnd.repositories.PlayerRepository;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -43,77 +44,87 @@ public class PartyApiController implements PartyApi {
     PlayerPartyRepository playerPartyRepository;
 
     public ResponseEntity<Object> getAllParties(@ApiParam(value = "header that contain a JwtToken" ,required=true) @RequestHeader(value="x-dnd-token", required=true) String xDndToken, @Min(0)@ApiParam(value = "The number of the page") @Valid @RequestParam(value = "pagination", required = false) Integer pagination) {
-        String userId = new JwttokenLogic().getUsernameFromToken(xDndToken);
-        Optional<PlayerEntity> pe = playerRepository.findById(userId);
-        if(new JwttokenLogic().isTokenExpired(xDndToken) || !pe.isPresent()) {
+        try {
+            String userId = new JwttokenLogic( ).getUsernameFromToken(xDndToken);
+            Optional<PlayerEntity> pe = playerRepository.findById(userId);
+            if (!pe.isPresent( )) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build( );
+            }
+            Parties p = new Parties( );
+            p.setMypage(getMyPageParty(pagination));
+            Pageable myPage = PageRequest.of(pagination, 60, Sort.by("id"));
+            Page<PartyEntity> parts = partyRepository.findAll(myPage);
+            List<Party> result = new LinkedList( );
+            for (PartyEntity pent : parts) {
+                result.add(getPartyFromPartyEntity(pent));
+            }
+            p.setParties(result);
+            return ResponseEntity.status(HttpStatus.OK).body(p);
+        }catch(ExpiredJwtException ex){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        Parties p = new Parties();
-        p.setMypage(getMyPageParty(pagination));
-        Pageable myPage = PageRequest.of(pagination, 60, Sort.by("id"));
-        Page<PartyEntity> parts = partyRepository.findAll(myPage);
-        List<Party> result = new LinkedList();
-        for(PartyEntity pent : parts){
-            result.add(getPartyFromPartyEntity(pent));
-        }
-        p.setParties(result);
-        return ResponseEntity.status(HttpStatus.OK).body(p);
     }
 
     public ResponseEntity<Object> getParty(@ApiParam(value = "header that contain a JwtToken" ,required=true) @RequestHeader(value="x-dnd-token", required=true) String xDndToken,@ApiParam(value = "ID of the party to return",required=true) @PathVariable("id") String id,@Min(0)@ApiParam(value = "The number of the page") @Valid @RequestParam(value = "pagination", required = false) Integer pagination) {
-        String userId = new JwttokenLogic().getUsernameFromToken(xDndToken);
-        Optional<PlayerEntity> pe = playerRepository.findById(userId);
-        if(new JwttokenLogic().isTokenExpired(xDndToken) || !pe.isPresent()) {
+        try {
+            String userId = new JwttokenLogic( ).getUsernameFromToken(xDndToken);
+            Optional<PlayerEntity> pe = playerRepository.findById(userId);
+            if (!pe.isPresent( )) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build( );
+            }
+            Optional<PartyEntity> party = partyRepository.findById(id);
+            if (party.isPresent( )) {
+                Partypage pp = new Partypage( );
+                pp.setParty(getPartyFromPartyEntity(party.get( )));
+                pp.setMypage(getMyPage(pagination, party.get( ).getId( )));
+                pp.setPlayers(getPartyPlayers(pagination, party.get( ).getId( )));
+                return ResponseEntity.status(HttpStatus.OK).body(pp);
+            }
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build( );
+        }catch(ExpiredJwtException ex){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        Optional<PartyEntity> party = partyRepository.findById(id);
-        if(party.isPresent()){
-            Partypage pp = new Partypage();
-            pp.setParty(getPartyFromPartyEntity(party.get()));
-            pp.setMypage(getMyPage(pagination, party.get().getId()));
-            pp.setPlayers(getPartyPlayers(pagination, party.get().getId()));
-            return ResponseEntity.status(HttpStatus.OK).body(pp);
-        }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     public ResponseEntity<Object> joinParty(@ApiParam(value = "header that contain a JwtToken" ,required=true) @RequestHeader(value="x-dnd-token", required=true) String xDndToken,@ApiParam(value = "ID of the party to return",required=true) @PathVariable("id") String id) {
-        if(new JwttokenLogic().isTokenExpired(xDndToken)) {
+        try{
+            String userId = new JwttokenLogic().getUsernameFromToken(xDndToken);
+            Optional<PlayerEntity> ple = playerRepository.findById(userId);
+            Optional<PartyEntity> pae = partyRepository.findById(id);
+            if(ple.isPresent() && pae.isPresent()){
+                Optional<PlayerPartyEntity> check = playerPartyRepository.findByPartyIdAndPlayerEmail(id,userId);
+                if(!check.isPresent()){
+                    PlayerPartyEntity ppe = new PlayerPartyEntity();
+                    Optional<PlayerEntity> player = playerRepository.findById(userId);
+                    Optional<PartyEntity> party = partyRepository.findById(id);
+                    ppe.setParty(party.get());
+                    ppe.setPlayer(player.get());
+                    playerPartyRepository.save(ppe);
+                }
+                return getParty(xDndToken, id, 0);
+            }
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }catch(ExpiredJwtException ex){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        String userId = new JwttokenLogic().getUsernameFromToken(xDndToken);
-        Optional<PlayerEntity> ple = playerRepository.findById(userId);
-        Optional<PartyEntity> pae = partyRepository.findById(id);
-        if(ple.isPresent() && pae.isPresent()){
-            Optional<PlayerPartyEntity> check = playerPartyRepository.findByPartyIdAndPlayerEmail(id,userId);
-            if(!check.isPresent()){
-                PlayerPartyEntity ppe = new PlayerPartyEntity();
-                Optional<PlayerEntity> player = playerRepository.findById(userId);
-                Optional<PartyEntity> party = partyRepository.findById(id);
-                ppe.setParty(party.get());
-                ppe.setPlayer(player.get());
-                playerPartyRepository.save(ppe);
-            }
-            return getParty(xDndToken, id, 0);
-        }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     public ResponseEntity<Object> quitParty(@ApiParam(value = "header that contain a JwtToken" ,required=true) @RequestHeader(value="x-dnd-token", required=true) String xDndToken,@ApiParam(value = "ID of the party to return",required=true) @PathVariable("id") String id) {
-        if(new JwttokenLogic().isTokenExpired(xDndToken)) {
+        try {
+            String userId = new JwttokenLogic( ).getUsernameFromToken(xDndToken);
+            Optional<PlayerEntity> ple = playerRepository.findById(userId);
+            Optional<PartyEntity> pae = partyRepository.findById(id);
+            if (ple.isPresent( ) && pae.isPresent( )) {
+                Optional<PlayerPartyEntity> check = playerPartyRepository.findByPartyIdAndPlayerEmail(id, userId);
+                if (check.isPresent( )) {
+                    playerPartyRepository.deleteById(check.get( ).getId( ));
+                }
+                return getParty(xDndToken, id, 0);
+            }
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build( );
+        }catch(ExpiredJwtException ex){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        String userId = new JwttokenLogic().getUsernameFromToken(xDndToken);
-        Optional<PlayerEntity> ple = playerRepository.findById(userId);
-        Optional<PartyEntity> pae = partyRepository.findById(id);
-        if(ple.isPresent() && pae.isPresent()){
-            Optional<PlayerPartyEntity> check = playerPartyRepository.findByPartyIdAndPlayerEmail(id, userId);
-            if(check.isPresent()){
-                playerPartyRepository.deleteById(check.get().getId());
-            }
-            return getParty(xDndToken, id, 0);
-        }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     private List<Player> getPartyPlayers(Integer page, String id){

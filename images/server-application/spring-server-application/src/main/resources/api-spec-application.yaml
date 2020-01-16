@@ -79,6 +79,8 @@ paths:
             type: object
             items:
               $ref: '#/definitions/partypage'
+        '409':
+          description: "Party already exist"
         '401':
           description: "You have not authorization to access this user data"
   /party:

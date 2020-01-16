@@ -6,6 +6,7 @@ import java.util.Properties;
 import ch.heigvd.dnd.ApiException;
 import ch.heigvd.dnd.ApiResponse;
 import ch.heigvd.dnd.api.DefaultApi;
+import ch.heigvd.dnd.api.dto.Party;
 import ch.heigvd.dnd.api.dto.Playerpage;
 
 public class Environment {
@@ -84,4 +85,5 @@ public class Environment {
     public void setData(Object data) {
         this.data = data;
     }
+
 }
