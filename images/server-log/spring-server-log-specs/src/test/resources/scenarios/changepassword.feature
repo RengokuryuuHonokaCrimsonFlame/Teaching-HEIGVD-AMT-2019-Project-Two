@@ -31,13 +31,12 @@ Feature: Application ChangePassword
     When I post them to the /changepassword endpoint
     Then I received a 423 status code
 
-  #TODO Active this test next week
-  #Scenario: Change a normal player password (old credential)
-  #  Given I have a old Player Token
-  #  Given I have a old password
-  #  Given I have a new password
-  #  When I post them to the /changepassword endpoint
-  #  Then I received a 403 status code
+  Scenario: Change a normal player password (old credential)
+    Given I have a old Player Token
+    Given I have a old password
+    Given I have a new password
+    When I post them to the /changepassword endpoint
+    Then I received a 403 status code
 
   Scenario: Change a unknown player password
     Given I have an unknown Player Token

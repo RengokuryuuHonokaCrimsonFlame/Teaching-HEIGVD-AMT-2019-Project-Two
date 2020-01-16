@@ -7,6 +7,7 @@ import ch.heigvd.dnd.configuration.JwtUserDetailsService;
 import ch.heigvd.dnd.entities.UtilisateurEntity;
 import ch.heigvd.dnd.model.JwttokenLogic;
 import ch.heigvd.dnd.repositories.UtilisateurRepository;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -38,36 +39,44 @@ public class AdminplayerApiController implements AdminplayerApi {
 
     @Override
     public ResponseEntity<List<Utilisateur>> adminplayer(@ApiParam(value = "header that contain a JwtToken" ,required=true) @RequestHeader(value="x-dnd-token", required=true) String xDndToken,@Min(0)@ApiParam(value = "The number of the page") @Valid @RequestParam(value = "pagination", required = false) Integer pagination) {
-        String userId = new JwttokenLogic().getUsernameFromToken(xDndToken);
-        Optional<UtilisateurEntity> administrator = playerRepository.findById(userId);
-        if(administrator.isPresent()) {
-            UserDetails userDetails = this.jwtUserDetailsService.loadUserByUsername(administrator.get().getEmail());
-            if (administrator.get().isAdministrator() && !administrator.get().isBlocked()
-                    && new JwttokenLogic().validateToken(xDndToken, userDetails)) {
-                return getPlayers(pagination);
+        try{
+            String userId = new JwttokenLogic().getUsernameFromToken(xDndToken);
+            Optional<UtilisateurEntity> administrator = playerRepository.findById(userId);
+            if(administrator.isPresent()) {
+                UserDetails userDetails = this.jwtUserDetailsService.loadUserByUsername(administrator.get().getEmail());
+                if (administrator.get().isAdministrator() && !administrator.get().isBlocked()
+                        && new JwttokenLogic().validateToken(xDndToken, userDetails)) {
+                    return getPlayers(pagination);
+                }
             }
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }catch(ExpiredJwtException ex){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
     @Override
     public ResponseEntity<List<Utilisateur>> manageplayer(@ApiParam(value = "header that contain a JwtToken" ,required=true) @RequestHeader(value="x-dnd-token", required=true) String xDndToken,@ApiParam(value = "ID of the player to lock/unlock" ,required=true )  @Valid @RequestBody Simpleuser simpleuser) {
-       String userId = new JwttokenLogic().getUsernameFromToken(xDndToken);
-        Optional<UtilisateurEntity> administrator = playerRepository.findById(userId);
-        if(administrator.isPresent()) {
-            UserDetails userDetails = this.jwtUserDetailsService.loadUserByUsername(administrator.get().getEmail());
-            if (administrator.get().isAdministrator() && !administrator.get().isBlocked()
-                && new JwttokenLogic().validateToken(xDndToken, userDetails)) {
-                Optional<UtilisateurEntity> updatePlayer = playerRepository.findById(simpleuser.getUserid());
-                if(updatePlayer.isPresent()){
-                    UtilisateurEntity playerToUpdate = updatePlayer.get();
-                    playerToUpdate.setBlocked(!playerToUpdate.isBlocked());
-                    playerRepository.save(playerToUpdate);
+        try {
+            String userId = new JwttokenLogic( ).getUsernameFromToken(xDndToken);
+            Optional<UtilisateurEntity> administrator = playerRepository.findById(userId);
+            if (administrator.isPresent( )) {
+                UserDetails userDetails = this.jwtUserDetailsService.loadUserByUsername(administrator.get( ).getEmail( ));
+                if (administrator.get( ).isAdministrator( ) && !administrator.get( ).isBlocked( )
+                        && new JwttokenLogic( ).validateToken(xDndToken, userDetails)) {
+                    Optional<UtilisateurEntity> updatePlayer = playerRepository.findById(simpleuser.getUserid( ));
+                    if (updatePlayer.isPresent( )) {
+                        UtilisateurEntity playerToUpdate = updatePlayer.get( );
+                        playerToUpdate.setBlocked(!playerToUpdate.isBlocked( ));
+                        playerRepository.save(playerToUpdate);
+                    }
+                    return getPlayers(0);
                 }
-                return getPlayers(0);
             }
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build( );
+        }catch(ExpiredJwtException ex){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
     private ResponseEntity<List<Utilisateur>> getPlayers(int page){

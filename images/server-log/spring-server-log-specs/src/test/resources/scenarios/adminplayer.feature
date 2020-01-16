@@ -9,12 +9,12 @@ Feature: Application AdminPlayers
     Then I received a 200 status code
     Then I received a list of players
 
-  #TODO Active this test next week
-  #Scenario: Admin Player Access to the page (old token)
-  #  Given I have a old admin Player Token
-  #  Given I have a pagination id
-  #  When I get them to the /adminplayer endpoint
-  #  Then I received a 403 status code
+
+  Scenario: Admin Player Access to the page (old token)
+    Given I have a old admin Player Token
+    Given I have a pagination id
+    When I get them to the /adminplayer endpoint
+    Then I received a 403 status code
 
   Scenario: Normal Player Access to the page
     Given I have a normal Player Token
@@ -39,12 +39,11 @@ Feature: Application AdminPlayers
     When I post them to the /adminplayer endpoint
     Then I received a 200 status code
 
-  #TODO Active this test next week
-  #Scenario: Admin Player Locked A Player (old token)
-  #  Given I have a old Player Token
-  #  Given I have a username
-  #  When I post them to the /adminplayer endpoint
-  #  Then I received a 403 status code
+  Scenario: Admin Player Locked A Player (old token)
+    Given I have a old Player Token
+    Given I have a username
+    When I post them to the /adminplayer endpoint
+    Then I received a 403 status code
 
   Scenario: Normal Player Locked A Player
     Given I have a normal Player Token
