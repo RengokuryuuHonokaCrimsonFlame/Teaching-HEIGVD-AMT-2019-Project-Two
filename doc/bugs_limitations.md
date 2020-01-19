@@ -6,7 +6,7 @@ There were no obvious bugs found.
 
 ## Limitations
 
-There are no real limitations when it comes to the usage of the APIs. The only limitations that could be found are those due to the program's limited features.
+There are no real limitations when it comes to the usage of the APIs. The only limitations that could be found are those due to the program's limited features or when to many users are trying to connect to our application (for further details see the testing parts of this documentation).
 
 ## Improvements
 
