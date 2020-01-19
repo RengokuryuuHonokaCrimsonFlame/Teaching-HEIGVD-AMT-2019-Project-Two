@@ -2,11 +2,13 @@
 
 ## Spring Boot
 
-We used the spring framework to implement one of our APIs from a Java SE project
+We used the spring framework to implement one of our APIs from a Java SE project.
+
+We also used CrudRepository (and subclasses) to speak with our databases.
 
 ## Swagger
 
-We use swagger to generate our server from the API specs (.yaml).
+We use swagger to generate our servers from the API specs (.yaml).
 
 ## Traefik
 
