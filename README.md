@@ -8,7 +8,7 @@
 
 ## deployment
 
-From the main repository run the shell script ```run_server.sh```
+From the main repository run the shell script ```run_server.sh```. This will build the two APIs and start them up in a docker container.
 
 To shut the server down run ```shutdown_server.sh```
 

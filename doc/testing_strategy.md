@@ -8,6 +8,15 @@ We use cucumber to implement automated functional tests for our APIs.
 
 We used Jmeter to load and performance test our app.
 
+### 1000 load
+![pour1000](pics/Pour01000.PNG)
+
+### 5000 load
+![pour5000](pics/Pour05000.PNG)
+
+### 10000 load
+![pour10000](pics/Pour10000.PNG)
+
 ### Opinion
 
 Our tests seem fairly complete and in working order.
