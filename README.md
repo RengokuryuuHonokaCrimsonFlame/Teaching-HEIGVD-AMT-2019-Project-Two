@@ -1,3 +1,23 @@
+# AMT-Project-Two
+
+## Requirements for deployment
+
+- Java version 8+
+- Docker
+- Maven
+
+## deployment
+
+From the main repository run the shell script ```run_server.sh```
+
+To shut the server down run ```shutdown_server.sh```
+
+## Report Links
+- [Project description](/doc/description.md)
+- [Implementation](/doc/implementation.md)
+- [Testing strategy](/doc/testing_strategy.md)
+- [Bugs and limitations](/doc/bugs_limitations.md)
+
 # Teaching-HEIGVD-AMT-2019-Project-Two
 ## Objectives
 
@@ -10,9 +30,9 @@ The objectives of this project is to design, specify, implement and validate **2
 
 ## Functional requirements
 
-* Design, specify and implement **a first API** that is used to **manage** user accounts. 
-  * Every account has at least an e-mail (used as the primary ID), a first name, a last name and a password. 
-  * The API must also allow the user to change its password. 
+* Design, specify and implement **a first API** that is used to **manage** user accounts.
+  * Every account has at least an e-mail (used as the primary ID), a first name, a last name and a password.
+  * The API must also allow the user to change its password.
   * A user cannot change the password of someone else.
   * The API also exposes an endpoint to authenticate a user: it returns a JWT token if the provided credentials are correct.
   * Specify, implement and validate at least one of these features:
@@ -102,4 +122,3 @@ You don't have to follow this sequence if you prefer to do some of the tasks bef
 * Performance tests with JMeter
 * Final packaging and validation
 * Documentation
-
