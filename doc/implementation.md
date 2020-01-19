@@ -4,7 +4,7 @@
 
 We used the spring framework to implement one of our APIs from a Java SE project.
 
-We also used CrudRepository (and subclasses) to speak with our databases.
+We also used CrudRepository (and subclasses) to communicate with our databases.
 
 ## Swagger
 

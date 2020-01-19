@@ -4,8 +4,7 @@
 
 We use cucumber to implement automated functional tests for our APIs.
 
-These tests are usefull to know if the application returns the right http status code and if the body of the response (if one)
-has a correct shape.
+These tests are useful to make sure if the application returns the correct http status code and whether the body of the response (if there is one) has a correct shape.
 
 ## Jmeter
 
