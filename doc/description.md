@@ -18,3 +18,10 @@ A user can
 - Leave a party
 - View his player's party page
 - View players in a party
+## log features
+
+A user can
+- Register
+- login
+- see all user if he is an admin
+- lock an user if he is an admin
